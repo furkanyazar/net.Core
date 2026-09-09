@@ -1,0 +1,54 @@
+<Solution>
+    <Folder Name="/Solution Items/">
+        <File Path=".csharpierrc" />
+        <File Path=".editorconfig" />
+        <File Path=".gitattributes" />
+        <File Path=".gitignore" />
+    </Folder>
+    <Folder Name="/Solution Items/.config/">
+        <File Path=".config/dotnet-tools.json" />
+    </Folder>
+    <Folder Name="/Solution Items/.github/" />
+    <Folder Name="/Solution Items/.github/workflows/">
+        <File Path=".github/workflows/dotnet.yml" />
+    </Folder>
+    <Folder Name="/Solution Items/docs/">
+        <File Path="docs/Semantic Branch Names.md" />
+        <File Path="docs/Semantic Commit Messages.md" />
+    </Folder>
+    <Folder Name="/src/">
+        <Project
+            Path="src/Core.Application/Core.Application.csproj"
+            Id="132b8869-4738-40b7-a3e0-16b3cc3a24ed"
+        />
+        <Project
+            Path="src/Core.CrossCuttingConcerns/Core.CrossCuttingConcerns.csproj"
+            Id="f8432b2b-608f-4666-9a17-f173113f69a0"
+        />
+        <Project
+            Path="src/Core.ElasticSearch/Core.ElasticSearch.csproj"
+            Id="f259eff1-8e5d-48a7-8a41-04114d79aa26"
+        />
+        <Project
+            Path="src/Core.Localization/Core.Localization.csproj"
+            Id="85937753-afdd-4989-a306-60b517c99df8"
+        />
+        <Project
+            Path="src/Core.Mailing/Core.Mailing.csproj"
+            Id="cef73e08-1ae8-4ebf-ad28-05565802e62b"
+        />
+        <Project
+            Path="src/Core.Persistence/Core.Persistence.csproj"
+            Id="a20d789f-a791-4087-8262-76e37dcc74b4"
+        />
+        <Project
+            Path="src/Core.Security/Core.Security.csproj"
+            Id="85e45a27-1957-4534-ba23-a02604103a9f"
+        />
+        <Project Path="src/Core.Test/Core.Test.csproj" Id="989c0f1b-bc76-4fe2-8152-a4d61a755cea" />
+        <Project
+            Path="src/Core.Translation/Core.Translation.csproj"
+            Id="d173deba-9894-4666-bb6c-2eb8af344212"
+        />
+    </Folder>
+</Solution>
