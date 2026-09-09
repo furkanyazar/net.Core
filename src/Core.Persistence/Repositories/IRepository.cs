@@ -46,7 +46,7 @@ public interface IRepository<TEntity, TEntityId> : IQuery<TEntity>
         bool enableTracking = true
     );
 
-    IList<TEntity> GetAll(
+    ICollection<TEntity> GetAll(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -54,7 +54,7 @@ public interface IRepository<TEntity, TEntityId> : IQuery<TEntity>
         bool enableTracking = true
     );
 
-    IList<TEntity> GetAllByDynamic(
+    ICollection<TEntity> GetAllByDynamic(
         DynamicQuery dynamic,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,

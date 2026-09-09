@@ -126,7 +126,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
         return await queryable.ToPaginateAsync(index, size, from: 0, cancellationToken);
     }
 
-    public async Task<IList<TEntity>> GetAllAsync(
+    public async Task<ICollection<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -223,7 +223,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
         return await queryable.ToPaginateAsync(index, size, from: 0, cancellationToken);
     }
 
-    public async Task<IList<TEntity>> GetAllByDynamicAsync(
+    public async Task<ICollection<TEntity>> GetAllByDynamicAsync(
         DynamicQuery dynamic,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
@@ -426,7 +426,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
         return queryable.ToPaginate(index, size);
     }
 
-    public IList<TEntity> GetAll(
+    public ICollection<TEntity> GetAll(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -473,7 +473,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
         return queryable.ToPaginate(index, size);
     }
 
-    public IList<TEntity> GetAllByDynamic(
+    public ICollection<TEntity> GetAllByDynamic(
         DynamicQuery dynamic,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
