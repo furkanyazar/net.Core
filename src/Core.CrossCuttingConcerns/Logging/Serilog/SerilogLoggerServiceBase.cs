@@ -1,9 +1,7 @@
 ﻿using Core.CrossCuttingConcerns.Logging.Abstraction;
-
 using PackageSerilog = Serilog;
 
 namespace Core.CrossCuttingConcerns.Logging.Serilog;
-
 
 public abstract class SerilogLoggerServiceBase(PackageSerilog.ILogger logger) : ILogger
 {

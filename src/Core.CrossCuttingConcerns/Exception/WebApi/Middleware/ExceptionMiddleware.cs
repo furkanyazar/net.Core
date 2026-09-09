@@ -11,7 +11,7 @@ public class ExceptionMiddleware(
     RequestDelegate next,
     IHttpContextAccessor contextAccessor,
     ILogger loggerService
-    )
+)
 {
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
     private readonly HttpExceptionHandler _httpExceptionHandler = new HttpExceptionHandler();
