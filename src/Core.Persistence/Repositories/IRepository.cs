@@ -16,8 +16,7 @@ public interface IRepository<TEntity, TEntityId> : IQuery<TEntity>
         bool enableTracking = true
     );
 
-    TEntity? GetByDynamic(
-        DynamicQuery dynamic,
+    ICollection<TEntity> GetAll(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -46,47 +45,18 @@ public interface IRepository<TEntity, TEntityId> : IQuery<TEntity>
         bool enableTracking = true
     );
 
-    ICollection<TEntity> GetAll(
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
-        bool enableTracking = true
-    );
-
-    ICollection<TEntity> GetAllByDynamic(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
-        bool enableTracking = true
-    );
-
     bool Any(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false
-    );
-
-    bool AnyByDynamic(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false
+        bool withDeleted = false,
+        bool enableTracking = true
     );
 
     int Count(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false
-    );
-
-    int CountByDynamic(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false
+        bool withDeleted = false,
+        bool enableTracking = true
     );
 
     TEntity Add(TEntity entity);

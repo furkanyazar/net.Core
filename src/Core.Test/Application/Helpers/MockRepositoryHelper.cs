@@ -32,22 +32,18 @@ public static class MockRepositoryHelper
             IAsyncRepository<TEntity, TEntityId>,
             IRepository<TEntity, TEntityId>
     {
-        SetupGetListAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupGetListByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupGetAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupGetByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupGetAllAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupGetAllByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupAddAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupAddRangeAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupUpdateAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupUpdateRangeAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupDeleteAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupDeleteRangeAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupUpdateAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupUpdateRangeAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupAnyAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupAnyByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
         SetupCountAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
-        SetupCountByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupGetAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupGetAllAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupGetListAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
+        SetupGetListByDynamicAsync<TRepository, TEntity, TEntityId>(mockRepo, entityList);
     }
 
     private static void SetupGetListAsync<TRepository, TEntity, TEntityId>(
@@ -148,45 +144,6 @@ public static class MockRepositoryHelper
             );
     }
 
-    private static void SetupGetByDynamicAsync<TRepository, TEntity, TEntityId>(
-        Mock<TRepository> mockRepo,
-        List<TEntity> entityList
-    )
-        where TEntity : Entity<TEntityId>, new()
-        where TRepository : class,
-            IAsyncRepository<TEntity, TEntityId>,
-            IRepository<TEntity, TEntityId>
-    {
-        mockRepo
-            .Setup(s =>
-                s.GetByDynamicAsync(
-                    It.IsAny<DynamicQuery>(),
-                    It.IsAny<Expression<Func<TEntity, bool>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .ReturnsAsync(
-                (
-                    DynamicQuery dynamic,
-                    Expression<Func<TEntity, bool>> expression,
-                    Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
-                    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include,
-                    bool withDeleted,
-                    bool enableTracking,
-                    CancellationToken cancellationToken
-                ) =>
-                {
-                    if (!withDeleted)
-                        entityList = [.. entityList.Where(e => !e.DeletedDate.HasValue)];
-                    TEntity? result = entityList.FirstOrDefault(predicate: expression.Compile());
-                    return result;
-                }
-            );
-    }
 
     private static void SetupGetAllAsync<TRepository, TEntity, TEntityId>(
         Mock<TRepository> mockRepo,
@@ -230,49 +187,6 @@ public static class MockRepositoryHelper
             );
     }
 
-    private static void SetupGetAllByDynamicAsync<TRepository, TEntity, TEntityId>(
-        Mock<TRepository> mockRepo,
-        List<TEntity> entityList
-    )
-        where TEntity : Entity<TEntityId>, new()
-        where TRepository : class,
-            IAsyncRepository<TEntity, TEntityId>,
-            IRepository<TEntity, TEntityId>
-    {
-        mockRepo
-            .Setup(s =>
-                s.GetAllByDynamicAsync(
-                    It.IsAny<DynamicQuery>(),
-                    It.IsAny<Expression<Func<TEntity, bool>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .ReturnsAsync(
-                (
-                    DynamicQuery dynamic,
-                    Expression<Func<TEntity, bool>> expression,
-                    Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
-                    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include,
-                    bool withDeleted,
-                    bool enableTracking,
-                    CancellationToken cancellationToken
-                ) =>
-                {
-                    IList<TEntity> list = [];
-                    if (!withDeleted)
-                        list = [.. entityList.Where(e => !e.DeletedDate.HasValue)];
-                    list =
-                        expression == null
-                            ? entityList
-                            : (IList<TEntity>)[.. entityList.Where(expression.Compile())];
-                    return list;
-                }
-            );
-    }
 
     private static void SetupAddRangeAsync<TRepository, TEntity, TEntityId>(
         Mock<TRepository> mockRepo,
@@ -374,6 +288,7 @@ public static class MockRepositoryHelper
                     It.IsAny<Expression<Func<TEntity, bool>>>(),
                     It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(),
                     It.IsAny<bool>(),
+                    It.IsAny<bool>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -388,76 +303,6 @@ public static class MockRepositoryHelper
                     if (!withDeleted)
                         entityList = [.. entityList.Where(e => !e.DeletedDate.HasValue)];
                     return entityList.Count(expression.Compile());
-                }
-            );
-    }
-
-    private static void SetupCountByDynamicAsync<TRepository, TEntity, TEntityId>(
-        Mock<TRepository> mockRepo,
-        List<TEntity> entityList
-    )
-        where TEntity : Entity<TEntityId>, new()
-        where TRepository : class,
-            IAsyncRepository<TEntity, TEntityId>,
-            IRepository<TEntity, TEntityId>
-    {
-        mockRepo
-            .Setup(s =>
-                s.CountByDynamicAsync(
-                    It.IsAny<DynamicQuery>(),
-                    It.IsAny<Expression<Func<TEntity, bool>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .ReturnsAsync(
-                (
-                    DynamicQuery dynamic,
-                    Expression<Func<TEntity, bool>> expression,
-                    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include,
-                    bool withDeleted,
-                    CancellationToken cancellationToken
-                ) =>
-                {
-                    if (!withDeleted)
-                        entityList = [.. entityList.Where(e => !e.DeletedDate.HasValue)];
-                    return entityList.Count(expression.Compile());
-                }
-            );
-    }
-
-    private static void SetupAnyByDynamicAsync<TRepository, TEntity, TEntityId>(
-        Mock<TRepository> mockRepo,
-        List<TEntity> entityList
-    )
-        where TEntity : Entity<TEntityId>, new()
-        where TRepository : class,
-            IAsyncRepository<TEntity, TEntityId>,
-            IRepository<TEntity, TEntityId>
-    {
-        mockRepo
-            .Setup(s =>
-                s.AnyByDynamicAsync(
-                    It.IsAny<DynamicQuery>(),
-                    It.IsAny<Expression<Func<TEntity, bool>>>(),
-                    It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<CancellationToken>()
-                )
-            )
-            .ReturnsAsync(
-                (
-                    DynamicQuery dynamic,
-                    Expression<Func<TEntity, bool>> expression,
-                    Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include,
-                    bool withDeleted,
-                    CancellationToken cancellationToken
-                ) =>
-                {
-                    if (!withDeleted)
-                        entityList = [.. entityList.Where(e => !e.DeletedDate.HasValue)];
-                    return entityList.Any(expression.Compile());
                 }
             );
     }
@@ -580,6 +425,7 @@ public static class MockRepositoryHelper
                 s.AnyAsync(
                     It.IsAny<Expression<Func<TEntity, bool>>>(),
                     It.IsAny<Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>?>(),
+                    It.IsAny<bool>(),
                     It.IsAny<bool>(),
                     It.IsAny<CancellationToken>()
                 )

@@ -17,8 +17,7 @@ public interface IAsyncRepository<TEntity, TEntityId> : IQuery<TEntity>
         CancellationToken cancellationToken = default
     );
 
-    Task<TEntity?> GetByDynamicAsync(
-        DynamicQuery dynamic,
+    Task<ICollection<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
@@ -50,37 +49,11 @@ public interface IAsyncRepository<TEntity, TEntityId> : IQuery<TEntity>
         CancellationToken cancellationToken = default
     );
 
-    Task<ICollection<TEntity>> GetAllAsync(
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
-        bool enableTracking = true,
-        CancellationToken cancellationToken = default
-    );
-
-    Task<ICollection<TEntity>> GetAllByDynamicAsync(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
-        bool enableTracking = true,
-        CancellationToken cancellationToken = default
-    );
-
     Task<bool> AnyAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
         bool withDeleted = false,
-        CancellationToken cancellationToken = default
-    );
-
-    Task<bool> AnyByDynamicAsync(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
+        bool enableTracking = true,
         CancellationToken cancellationToken = default
     );
 
@@ -88,14 +61,7 @@ public interface IAsyncRepository<TEntity, TEntityId> : IQuery<TEntity>
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
         bool withDeleted = false,
-        CancellationToken cancellationToken = default
-    );
-
-    Task<int> CountByDynamicAsync(
-        DynamicQuery dynamic,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
-        bool withDeleted = false,
+        bool enableTracking = true,
         CancellationToken cancellationToken = default
     );
 
