@@ -144,7 +144,6 @@ public static class MockRepositoryHelper
             );
     }
 
-
     private static void SetupGetAllAsync<TRepository, TEntity, TEntityId>(
         Mock<TRepository> mockRepo,
         List<TEntity> entityList
@@ -186,7 +185,6 @@ public static class MockRepositoryHelper
                 }
             );
     }
-
 
     private static void SetupAddRangeAsync<TRepository, TEntity, TEntityId>(
         Mock<TRepository> mockRepo,
