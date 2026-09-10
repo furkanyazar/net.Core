@@ -6,7 +6,6 @@ using Core.Persistence.Dynamic;
 using Core.Persistence.Paging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Core.Persistence.Repositories;
@@ -17,18 +16,16 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     where TEntity : Entity<TEntityId>
     where TContext : DbContext
 {
-    protected readonly TContext _context = context;
-
     public IQueryable<TEntity> Query()
     {
-        return _context.Set<TEntity>();
+        return context.Set<TEntity>();
     }
 
     public TEntity Add(TEntity entity)
     {
         EditEntityPropertiesToAdd(entity);
-        _context.Add(entity);
-        _context.SaveChanges();
+        context.Add(entity);
+        context.SaveChanges();
         return entity;
     }
 
@@ -36,30 +33,30 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     {
         foreach (TEntity entity in entities)
             EditEntityPropertiesToAdd(entity);
-        _context.AddRange(entities);
-        _context.SaveChanges();
+        context.AddRange(entities);
+        context.SaveChanges();
         return entities;
     }
 
     public TEntity Delete(TEntity entity, bool permanent = false)
     {
         SetEntityAsDeleted(entity, permanent, isAsync: false).Wait();
-        _context.SaveChanges();
+        context.SaveChanges();
         return entity;
     }
 
     public ICollection<TEntity> DeleteRange(ICollection<TEntity> entities, bool permanent = false)
     {
         SetEntityAsDeleted(entities, permanent, isAsync: false).Wait();
-        _context.SaveChanges();
+        context.SaveChanges();
         return entities;
     }
 
     public TEntity Update(TEntity entity)
     {
         EditEntityPropertiesToAdd(entity);
-        _context.Update(entity);
-        _context.SaveChanges();
+        context.Update(entity);
+        context.SaveChanges();
         return entity;
     }
 
@@ -67,8 +64,8 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     {
         foreach (TEntity entity in entities)
             EditEntityPropertiesToAdd(entity);
-        _context.UpdateRange(entities);
-        _context.SaveChanges();
+        context.UpdateRange(entities);
+        context.SaveChanges();
         return entities;
     }
 
@@ -209,8 +206,8 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     )
     {
         EditEntityPropertiesToAdd(entity);
-        await _context.AddAsync(entity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.AddAsync(entity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
@@ -221,8 +218,8 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     {
         foreach (TEntity entity in entities)
             EditEntityPropertiesToAdd(entity);
-        await _context.AddRangeAsync(entities, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.AddRangeAsync(entities, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return entities;
     }
 
@@ -233,7 +230,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     )
     {
         await SetEntityAsDeleted(entity, permanent, isAsync: true, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
@@ -244,7 +241,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     )
     {
         await SetEntityAsDeleted(entities, permanent, isAsync: true, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
         return entities;
     }
 
@@ -254,8 +251,8 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     )
     {
         EditEntityPropertiesToUpdate(entity);
-        _context.Update(entity);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Update(entity);
+        await context.SaveChangesAsync(cancellationToken);
         return entity;
     }
 
@@ -266,8 +263,8 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
     {
         foreach (TEntity entity in entities)
             EditEntityPropertiesToUpdate(entity);
-        _context.UpdateRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.UpdateRange(entities);
+        await context.SaveChangesAsync(cancellationToken);
         return entities;
     }
 
@@ -449,7 +446,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
                 SetEntityAsSoftDeleted(entity, isAsync).Wait(cancellationToken);
         }
         else
-            _context.Remove(entity);
+            context.Remove(entity);
     }
 
     protected async Task SetEntityAsDeleted(
@@ -465,18 +462,18 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
 
     protected void CheckHasEntityHaveOneToOneRelation(TEntity entity)
     {
-        IEnumerable<IForeignKey> foreignKeys = _context.Entry(entity).Metadata.GetForeignKeys();
+        IEnumerable<IForeignKey> foreignKeys = context.Entry(entity).Metadata.GetForeignKeys();
         IForeignKey? oneToOneForeignKey = foreignKeys.FirstOrDefault(fk =>
             fk.IsUnique
             && fk.PrincipalKey.Properties.All(pk =>
-                _context.Entry(entity).Property(pk.Name).Metadata.IsPrimaryKey()
+                context.Entry(entity).Property(pk.Name).Metadata.IsPrimaryKey()
             )
         );
 
         if (oneToOneForeignKey != null)
         {
             string relatedEntity = oneToOneForeignKey.PrincipalEntityType.ClrType.Name;
-            IReadOnlyList<IProperty> primaryKeyProperties = _context
+            IReadOnlyList<IProperty> primaryKeyProperties = context
                 .Entry(entity)
                 .Metadata.FindPrimaryKey()!
                 .Properties;
@@ -526,7 +523,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
         else
             EditRelationEntityPropertiesToCascadeSoftDelete(entity);
 
-        var navigations = _context
+        var navigations = context
             .Entry(entity)
             .Metadata.GetNavigations()
             .Where(x =>
@@ -550,7 +547,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
             {
                 if (navValue == null)
                 {
-                    IQueryable query = _context
+                    IQueryable query = context
                         .Entry(entity)
                         .Collection(navigation.PropertyInfo.Name)
                         .Query();
@@ -587,7 +584,7 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
             {
                 if (navValue == null)
                 {
-                    IQueryable query = _context
+                    IQueryable query = context
                         .Entry(entity)
                         .Reference(navigation.PropertyInfo.Name)
                         .Query();
@@ -623,6 +620,6 @@ public class EfRepositoryBase<TEntity, TEntityId, TContext>(TContext context)
             }
         }
 
-        _context.Update(entity);
+        context.Update(entity);
     }
 }

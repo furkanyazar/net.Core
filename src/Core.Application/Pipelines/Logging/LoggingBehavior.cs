@@ -12,8 +12,6 @@ public class LoggingBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>, ILoggableRequest
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly ILogger _logger = logger;
 
     public async Task<TResponse> Handle(
         TRequest request,
@@ -30,10 +28,10 @@ public class LoggingBehavior<TRequest, TResponse>(
         {
             MethodName = next.Method.Name,
             Parameters = logParameters,
-            User = _httpContextAccessor.HttpContext.User.Identity?.Name ?? "?",
+            User = httpContextAccessor.HttpContext.User.Identity?.Name ?? "?",
         };
 
-        _logger.Information(JsonSerializer.Serialize(logDetail));
+        logger.Information(JsonSerializer.Serialize(logDetail));
         return await next(cancellationToken);
     }
 }

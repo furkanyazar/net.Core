@@ -10,21 +10,19 @@ public class AuthorizationBehavior<TRequest, TResponse>(IHttpContextAccessor htt
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>, ISecuredRequest
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken
     )
     {
-        if (!_httpContextAccessor.HttpContext.User.Claims.Any())
+        if (!httpContextAccessor.HttpContext.User.Claims.Any())
             throw new AuthorizationException("You are not authenticated.");
 
         if (request.Roles.Length != 0)
         {
             ICollection<string>? userRoleClaims =
-                _httpContextAccessor.HttpContext.User.GetRoleClaims() ?? [];
+                httpContextAccessor.HttpContext.User.GetRoleClaims() ?? [];
             bool isNotMatchedAUserRoleClaimWithRequestRoles =
                 userRoleClaims.FirstOrDefault(userRoleClaim =>
                     userRoleClaim == GeneralOperationClaims.Admin

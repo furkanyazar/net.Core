@@ -6,10 +6,8 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace Core.Mailing.MailKit;
 
-public class MailKitMailService(MailSettings configuration) : IMailService
+public class MailKitMailService(MailSettings mailSettings) : IMailService
 {
-    private readonly MailSettings _mailSettings = configuration;
-
     public void SendMail(Mail mail)
     {
         if (mail.ToList == null || mail.ToList.Count < 1)
@@ -35,7 +33,7 @@ public class MailKitMailService(MailSettings configuration) : IMailService
     private void emailPrepare(Mail mail, out MimeMessage email, out SmtpClient smtp)
     {
         email = new MimeMessage();
-        email.From.Add(new MailboxAddress(_mailSettings.SenderFullName, _mailSettings.SenderEmail));
+        email.From.Add(new MailboxAddress(mailSettings.SenderFullName, mailSettings.SenderEmail));
         email.To.AddRange(mail.ToList);
         if (mail.CcList != null && mail.CcList.Any())
             email.Cc.AddRange(mail.CcList);
@@ -56,20 +54,20 @@ public class MailKitMailService(MailSettings configuration) : IMailService
         email.Prepare(EncodingConstraint.SevenBit);
 
         if (
-            _mailSettings.DkimPrivateKey != null
-            && _mailSettings.DkimSelector != null
-            && _mailSettings.DomainName != null
+            mailSettings.DkimPrivateKey != null
+            && mailSettings.DkimSelector != null
+            && mailSettings.DomainName != null
         )
         {
             DkimSigner signer = new(
                 key: readPrivateKeyFromPemEncodedString(),
-                _mailSettings.DomainName,
-                _mailSettings.DkimSelector
+                mailSettings.DomainName,
+                mailSettings.DkimSelector
             )
             {
                 HeaderCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple,
                 BodyCanonicalizationAlgorithm = DkimCanonicalizationAlgorithm.Simple,
-                AgentOrUserIdentifier = $"@{_mailSettings.DomainName}",
+                AgentOrUserIdentifier = $"@{mailSettings.DomainName}",
                 QueryMethod = "dns/txt",
             };
             HeaderId[] headers = [HeaderId.From, HeaderId.Subject, HeaderId.To];
@@ -77,9 +75,9 @@ public class MailKitMailService(MailSettings configuration) : IMailService
         }
 
         smtp = new SmtpClient();
-        smtp.Connect(_mailSettings.Server, _mailSettings.Port);
-        if (_mailSettings.AuthenticationRequired)
-            smtp.Authenticate(_mailSettings.UserName, _mailSettings.Password);
+        smtp.Connect(mailSettings.Server, mailSettings.Port);
+        if (mailSettings.AuthenticationRequired)
+            smtp.Authenticate(mailSettings.UserName, mailSettings.Password);
     }
 
     private AsymmetricKeyParameter readPrivateKeyFromPemEncodedString()
@@ -87,7 +85,7 @@ public class MailKitMailService(MailSettings configuration) : IMailService
         AsymmetricKeyParameter result;
         string pemEncodedKey =
             "-----BEGIN RSA PRIVATE KEY-----\n"
-            + _mailSettings.DkimPrivateKey
+            + mailSettings.DkimPrivateKey
             + "\n-----END RSA PRIVATE KEY-----";
         using (StringReader stringReader = new(pemEncodedKey))
         {

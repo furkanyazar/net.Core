@@ -13,16 +13,13 @@ public class ExceptionMiddleware(
     ILogger loggerService
 )
 {
-    private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
-    private readonly HttpExceptionHandler _httpExceptionHandler = new HttpExceptionHandler();
-    private readonly ILogger _loggerService = loggerService;
-    private readonly RequestDelegate _next = next;
+    private readonly HttpExceptionHandler _httpExceptionHandler = new();
 
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (System.Exception exception)
         {
@@ -48,12 +45,12 @@ public class ExceptionMiddleware(
 
         LogDetail logDetail = new()
         {
-            MethodName = _next.Method.Name,
+            MethodName = next.Method.Name,
             Parameters = logParameters,
-            User = _contextAccessor.HttpContext?.User.Identity?.Name ?? "?",
+            User = contextAccessor.HttpContext?.User.Identity?.Name ?? "?",
         };
 
-        _loggerService.Information(JsonSerializer.Serialize(logDetail));
+        loggerService.Information(JsonSerializer.Serialize(logDetail));
         return Task.CompletedTask;
     }
 }

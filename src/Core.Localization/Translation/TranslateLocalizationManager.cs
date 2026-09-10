@@ -10,8 +10,6 @@ public class TranslateLocalizationManager(ITranslationService translationService
     private const string DefaultLocale = "en";
     public ICollection<string>? AcceptLocales { get; set; }
 
-    private readonly ITranslationService _translationService = translationService;
-
     public Task<string> GetLocalizedAsync(string key, string? keySection = null)
     {
         return GetLocalizedAsync(
@@ -31,12 +29,12 @@ public class TranslateLocalizationManager(ITranslationService translationService
         if (acceptLocales is not null)
             foreach (string locale in acceptLocales)
             {
-                localization = await _translationService.TranslateAsync(key, locale);
+                localization = await translationService.TranslateAsync(key, locale);
                 if (!string.IsNullOrWhiteSpace(localization))
                     return localization;
             }
 
-        localization = await _translationService.TranslateAsync(key, DefaultLocale);
+        localization = await translationService.TranslateAsync(key, DefaultLocale);
         if (!string.IsNullOrWhiteSpace(localization))
             return localization;
 

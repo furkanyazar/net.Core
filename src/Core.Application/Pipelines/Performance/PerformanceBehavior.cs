@@ -10,8 +10,6 @@ public class PerformanceBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>, IIntervalRequest
 {
-    private readonly ILogger<PerformanceBehavior<TRequest, TResponse>> _logger = logger;
-    private readonly Stopwatch _stopwatch = stopwatch;
 
     public async Task<TResponse> Handle(
         TRequest request,
@@ -25,21 +23,21 @@ public class PerformanceBehavior<TRequest, TResponse>(
 
         try
         {
-            _stopwatch.Start();
+            stopwatch.Start();
             response = await next(cancellationToken);
         }
         finally
         {
-            if (_stopwatch.Elapsed.TotalSeconds > request.Interval)
+            if (stopwatch.Elapsed.TotalSeconds > request.Interval)
             {
                 string message =
-                    $"Performance -> {requestName} {_stopwatch.Elapsed.TotalSeconds} s";
+                    $"Performance -> {requestName} {stopwatch.Elapsed.TotalSeconds} s";
 
                 Debug.WriteLine(message);
-                _logger.LogInformation(message);
+                logger.LogInformation(message);
             }
 
-            _stopwatch.Restart();
+            stopwatch.Restart();
         }
 
         return response;

@@ -10,8 +10,6 @@ public class RequestValidationBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators = validators;
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
@@ -21,7 +19,7 @@ public class RequestValidationBehavior<TRequest, TResponse>(
         ValidationContext<object> context = new(request);
         IEnumerable<ValidationExceptionModel> errors =
         [
-            .. _validators
+            .. validators
                 .Select(validator => validator.Validate(context))
                 .SelectMany(result => result.Errors)
                 .Where(failure => failure != null)

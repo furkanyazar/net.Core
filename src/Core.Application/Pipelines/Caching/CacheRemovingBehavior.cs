@@ -12,8 +12,6 @@ public class CacheRemovingBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>, ICacheRemoverRequest
 {
-    private readonly IDistributedCache _cache = cache;
-    private readonly ILogger<CacheRemovingBehavior<TRequest, TResponse>> _logger = logger;
 
     public async Task<TResponse> Handle(
         TRequest request,
@@ -29,7 +27,7 @@ public class CacheRemovingBehavior<TRequest, TResponse>(
         if (request.CacheGroupKey != null)
             for (int i = 0; i < request.CacheGroupKey.Length; i++)
             {
-                byte[]? cachedGroup = await _cache.GetAsync(
+                byte[]? cachedGroup = await cache.GetAsync(
                     request.CacheGroupKey[i],
                     cancellationToken
                 );
@@ -40,17 +38,17 @@ public class CacheRemovingBehavior<TRequest, TResponse>(
                     )!;
                     foreach (string key in keysInGroup)
                     {
-                        await _cache.RemoveAsync(key, cancellationToken);
-                        _logger.LogInformation($"Removed Cache -> {key}");
+                        await cache.RemoveAsync(key, cancellationToken);
+                        logger.LogInformation($"Removed Cache -> {key}");
                     }
 
-                    await _cache.RemoveAsync(request.CacheGroupKey[i], cancellationToken);
-                    _logger.LogInformation($"Removed Cache -> {request.CacheGroupKey}");
-                    await _cache.RemoveAsync(
+                    await cache.RemoveAsync(request.CacheGroupKey[i], cancellationToken);
+                    logger.LogInformation($"Removed Cache -> {request.CacheGroupKey}");
+                    await cache.RemoveAsync(
                         key: $"{request.CacheGroupKey}SlidingExpiration",
                         cancellationToken
                     );
-                    _logger.LogInformation(
+                    logger.LogInformation(
                         $"Removed Cache -> {request.CacheGroupKey}SlidingExpiration"
                     );
                 }
@@ -58,8 +56,8 @@ public class CacheRemovingBehavior<TRequest, TResponse>(
 
         if (request.CacheKey != null)
         {
-            await _cache.RemoveAsync(request.CacheKey, cancellationToken);
-            _logger.LogInformation($"Removed Cache -> {request.CacheKey}");
+            await cache.RemoveAsync(request.CacheKey, cancellationToken);
+            logger.LogInformation($"Removed Cache -> {request.CacheKey}");
         }
 
         return response;

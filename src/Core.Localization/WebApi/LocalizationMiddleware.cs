@@ -6,8 +6,6 @@ namespace Core.Localization.WebApi;
 
 public class LocalizationMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next = next ?? throw new ArgumentNullException(nameof(next));
-
     public async Task Invoke(HttpContext context, ILocalizationService localizationService)
     {
         IList<StringWithQualityHeaderValue> acceptLanguages = context
@@ -21,6 +19,6 @@ public class LocalizationMiddleware(RequestDelegate next)
                     .Select(x => x.Value.ToString()),
             ];
 
-        await _next(context);
+        await next(context);
     }
 }

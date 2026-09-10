@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Data;
+﻿using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,22 +12,20 @@ namespace Core.Security.JWT;
 public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(TokenOptions tokenOptions)
     : ITokenHelper<TUserId, TOperationClaimId, TRefreshTokenId>
 {
-    private readonly TokenOptions _tokenOptions = tokenOptions;
-
     public virtual AccessToken CreateToken(
         User<TUserId> user,
         IList<OperationClaim<TOperationClaimId>> operationClaims
     )
     {
         DateTime accessTokenExpiration = DateTime.Now.AddMinutes(
-            _tokenOptions.AccessTokenExpiration
+            tokenOptions.AccessTokenExpiration
         );
-        SecurityKey securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey);
+        SecurityKey securityKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey);
         SigningCredentials signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(
             securityKey
         );
         JwtSecurityToken jwt = CreateJwtSecurityToken(
-            _tokenOptions,
+            tokenOptions,
             user,
             signingCredentials,
             operationClaims,
@@ -49,7 +46,7 @@ public class JwtHelper<TUserId, TOperationClaimId, TRefreshTokenId>(TokenOptions
         {
             UserId = user.Id,
             Token = RandomRefreshToken(),
-            ExpirationDate = DateTime.UtcNow.AddDays(_tokenOptions.RefreshTokenTTL),
+            ExpirationDate = DateTime.UtcNow.AddDays(tokenOptions.RefreshTokenTTL),
             CreatedByIp = ipAddress,
         };
     }
