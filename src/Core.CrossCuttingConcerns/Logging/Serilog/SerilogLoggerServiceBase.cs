@@ -5,33 +5,35 @@ namespace Core.CrossCuttingConcerns.Logging.Serilog;
 
 public abstract class SerilogLoggerServiceBase(PackageSerilog.ILogger logger) : ILogger
 {
+    protected PackageSerilog.ILogger? Logger { get; set; } = logger;
+
     public void Critical(string message)
     {
-        logger?.Fatal(message);
+        Logger?.Fatal(message);
     }
 
     public void Debug(string message)
     {
-        logger?.Debug(message);
+        Logger?.Debug(message);
     }
 
     public void Error(string message)
     {
-        logger?.Error(message);
+        Logger?.Error(message);
     }
 
     public void Information(string message)
     {
-        logger?.Information(message);
+        Logger?.Information(message);
     }
 
     public void Trace(string message)
     {
-        logger?.Verbose(message);
+        Logger?.Verbose(message);
     }
 
     public void Warning(string message)
     {
-        logger?.Warning(message);
+        Logger?.Warning(message);
     }
 }
