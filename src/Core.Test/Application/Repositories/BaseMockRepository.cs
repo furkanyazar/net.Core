@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Reflection;
+using AutoMapper;
 using Core.Application.Rules;
 using Core.Localization.Resource.Yaml;
 using Core.Persistence.Repositories;
 using Core.Test.Application.FakeData;
 using Core.Test.Application.Helpers;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace Core.Test.Application.Repositories;
@@ -28,19 +30,36 @@ public abstract class BaseMockRepository<
 
     public BaseMockRepository(TFakeData fakeData)
     {
-        MapperConfiguration mapperConfig = new(c => c.AddProfile<TMappingProfile>(), null);
+        MapperConfiguration mapperConfig = new(
+            c => c.AddProfile<TMappingProfile>(),
+            NullLoggerFactory.Instance
+        );
         Mapper = mapperConfig.CreateMapper();
 
         MockRepository = MockRepositoryHelper.GetRepository<TRepository, TEntity, TEntityId>(
             fakeData.Data
         );
+        object[] candidateArguments =
+        [
+            MockRepository.Object,
+            new ResourceLocalizationManager(resources: []) { AcceptLocales = ["en"] },
+        ];
+        ConstructorInfo constructor = typeof(TBusinessRules)
+            .GetConstructors()
+            .Single(c => c.GetParameters().Length == candidateArguments.Length);
+        object[] orderedArguments =
+        [
+            .. constructor
+                .GetParameters()
+                .Select(parameter =>
+                    candidateArguments.Single(argument =>
+                        parameter.ParameterType.IsInstanceOfType(argument)
+                    )
+                ),
+        ];
+
         BusinessRules =
-            (TBusinessRules)
-                Activator.CreateInstance(
-                    type: typeof(TBusinessRules),
-                    MockRepository.Object,
-                    new ResourceLocalizationManager(resources: []) { AcceptLocales = ["en"] }
-                )!
+            (TBusinessRules?)constructor.Invoke(orderedArguments)
             ?? throw new InvalidOperationException(
                 $"Cannot create an instance of {typeof(TBusinessRules).FullName}."
             );
