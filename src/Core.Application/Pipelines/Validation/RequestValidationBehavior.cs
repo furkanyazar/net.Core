@@ -29,7 +29,11 @@ public class RequestValidationBehavior<TRequest, TResponse>(
                         new ValidationExceptionModel
                         {
                             Property = propertyName,
-                            Errors = errors.Select(e => e.ErrorMessage),
+                            Errors = errors.Select(e => new ValidationErrorModel()
+                            {
+                                Code = e.ErrorCode,
+                                Message = e.ErrorMessage,
+                            }),
                         }
                 ),
         ];
