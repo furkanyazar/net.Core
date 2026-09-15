@@ -44,9 +44,7 @@ public abstract class BaseMockRepository<
             MockRepository.Object,
             new ResourceLocalizationManager(resources: []) { AcceptLocales = ["en"] },
         ];
-        ConstructorInfo constructor = typeof(TBusinessRules)
-            .GetConstructors()
-            .Single(c => c.GetParameters().Length == candidateArguments.Length);
+        ConstructorInfo constructor = typeof(TBusinessRules).GetConstructors().Single();
         object[] orderedArguments =
         [
             .. constructor
